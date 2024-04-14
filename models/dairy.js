@@ -2,24 +2,27 @@ const mongoose = require('mongoose')
 const {Schema} = mongoose
 
 
-const UserSchema = new Schema({
-    userId:{
+const dairySchema = new Schema({
+    dairyId:{
         type:String,
         default:Date.now()
     },
-    username:{
+    title:{
         type:String,
         required:true
     },
-    email:{
+    description:{
         type:String,
         required:true,
         unquire:true
     },
-    password:{
+    date:{
+        type:Date,
+        default:Date.now()
+    },
+    location:{
         type:String,
-        required:true
     }
 })
 
-module.exports = mongoose.model('users',UserSchema)
+module.exports = mongoose.model('dairy',dairySchema)

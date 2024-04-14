@@ -3,6 +3,7 @@ const user = require('../models/user');
 const router = express.Router()
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
+const verifyToken = require('../middleware/verifyToken')
 
 class UserRoutes {
 
@@ -24,10 +25,12 @@ class UserRoutes {
             const userData = await user.findOne({ username })
             const isPassword  = await bcrypt.compare(password,userData.password)
             if(userData && isPassword){
-                const jwtToken = jwt.sign({username,email:userData.email},"JWT")
-                return res.send({jwtToken})
+                jwt.sign({username,email:userData.email},"JWT" , (err , token)=>{
+                    return res.send({jwtToken:token})
+                })
+            }else{
+                res.status(404).send({message:"Invalid credientials"})
             }
-            res.status(404).send({message:"Invalid credientials"})
         } catch (e) {
             res.status(500).send({ message: "something went wrong", e })
         }
@@ -48,8 +51,9 @@ class UserRoutes {
                 password:hashPassword
             }).then(() => {
 
-                const jwtToken = jwt.sign({username,email},"JWT")
-                return res.send({jwtToken})
+                jwt.sign({username,email},"JWT" ,(err , token)=>{
+                    return res.send({jwtToken:token})
+                })
             }).catch(e => {
                 console.log(e)
                 res.status(500).send({ message: "something went wrong", e })
@@ -60,11 +64,11 @@ class UserRoutes {
     }
 
     //update user data
-    static async updateUser(req, res) {
-        const userId = req.params.id;
+    static async updateUser(req , res){
+        const {username} = req
         const updatedUser = req.body;
         try {
-            const userUpdated = await user.findOneAndUpdate({userId},updatedUser)
+            const userUpdated = await user.findOneAndUpdate({username},updatedUser)
             if (!userUpdated) {
                 res.status(404).send({ message: "User not found" })
             }
@@ -96,7 +100,7 @@ class UserRoutes {
 router.get('/', UserRoutes.getUsers);
 router.post('/login', UserRoutes.login);
 router.post('/register', UserRoutes.createUser)
-router.put('/updateuser/:id', UserRoutes.updateUser)
+router.put('/updateuser',verifyToken, UserRoutes.updateUser)
 router.delete('/delete/:id', UserRoutes.deleteUser)
 
 
