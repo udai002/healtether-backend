@@ -2,6 +2,7 @@ const express = require('express');
 const user = require('../models/user');
 const router = express.Router()
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
 
 class UserRoutes {
 
@@ -17,11 +18,16 @@ class UserRoutes {
     }
 
     //get user by id
-    static async getUser(req, res) {
+    static async login(req, res) {
+        const {username , password} = req.body
         try {
-            const userId = req.params.id;
-            const userData = await user.findOne({ userId })
-            res.send(userData)
+            const userData = await user.findOne({ username })
+            const isPassword  = await bcrypt.compare(password,userData.password)
+            if(userData && isPassword){
+                const jwtToken = jwt.sign({username,email:userData.email},"JWT")
+                return res.send({jwtToken})
+            }
+            res.status(404).send({message:"Invalid credientials"})
         } catch (e) {
             res.status(500).send({ message: "something went wrong", e })
         }
@@ -41,7 +47,9 @@ class UserRoutes {
                 email,
                 password:hashPassword
             }).then(() => {
-                res.json({ message: 'Created user', user: newUser });
+
+                const jwtToken = jwt.sign({username,email},"JWT")
+                return res.send({jwtToken})
             }).catch(e => {
                 console.log(e)
                 res.status(500).send({ message: "something went wrong", e })
@@ -86,10 +94,10 @@ class UserRoutes {
 }
 
 router.get('/', UserRoutes.getUsers);
-router.get('/:id', UserRoutes.getUser);
-router.post('/', UserRoutes.createUser)
-router.put('/:id', UserRoutes.updateUser)
-router.delete('/:id', UserRoutes.deleteUser)
+router.post('/login', UserRoutes.login);
+router.post('/register', UserRoutes.createUser)
+router.put('/updateuser/:id', UserRoutes.updateUser)
+router.delete('/delete/:id', UserRoutes.deleteUser)
 
 
 module.exports = router;
