@@ -1,30 +1,27 @@
 const express = require('express')
 const { default: mongoose } = require('mongoose')
 const dotenv = require('dotenv').config() 
-// const mongoose = require('mongoose')
 const Port = dotenv.parsed.PORT || 3000
+const userRoutes = require('./Routes/userRoutes')
 app = express()
 
 //connecting to mongodb altas using mongoose
 mongoose.set("strictQuery" , false)
 const connectMongo = async ()=>{
     try{
-        const conn = await mongoose.connect('mongodb+srv://karumuriudaisai002:udai123@cluster0.4o0q2x6.mongodb.net/')
-        console.log("mongodb connected...." , conn)
+        const conn = await mongoose.connect('mongodb+srv://karumuriudaisai002:EFYLAnjrXLgX8NEU@cluster0.wvjtor2.mongodb.net/')
+        console.log("mongodb connected....")
     }catch(e){
         console.log(e)
     }
 }
 
+
 connectMongo()
 
 app.use(express.json())
 
-app.get('/' , (req , res)=>{
-    res.send({message:"Welcome to express app"})
-})
-
-// ********* write your code here *********
+app.use('/api/users',userRoutes)
 
 app.listen(Port , ()=>{
     console.log(`app is listening... at http://localhost:${Port}`)
