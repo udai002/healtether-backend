@@ -3,7 +3,6 @@ const { default: mongoose } = require('mongoose')
 const dotenv = require('dotenv').config() 
 const Port = dotenv.parsed.PORT || 3000
 const userRoutes = require('./Routes/userRoutes')
-const dairyRoutes = require('./Routes/dairyRoutes')
 app = express()
 
 //connecting to mongodb altas using mongoose
@@ -23,7 +22,7 @@ app.use(express.json())
 // app.use(verifyToken)
 
 app.use('/api/users',userRoutes)
-app.use('/api/dairy',dairyRoutes)
+
 
 app.listen(Port , ()=>{
     console.log(`app is listening... at http://localhost:${Port}`)
