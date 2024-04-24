@@ -3,6 +3,7 @@ const { default: mongoose } = require('mongoose')
 const dotenv = require('dotenv').config() 
 const Port = dotenv.parsed.PORT || 3000
 const userRoutes = require('./Routes/userRoutes')
+const cors = require('cors')
 app = express()
 
 //connecting to mongodb altas using mongoose
@@ -19,6 +20,7 @@ const connectMongo = async ()=>{
 connectMongo()
 
 app.use(express.json())
+app.use(cors())
 // app.use(verifyToken)
 
 app.use('/api/users',userRoutes)
